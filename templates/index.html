@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Library</title>
+    <style>
+        table, th, tr, td {border: 1px solid black;}
+    </style>
+</head>
+
+<h2>Lista zadań</h2>
+
+<table>
+    <thead>
+    <th>ID</th>
+    <th>Tytuł</th>
+    <th>Rok</th>
+    <th>Opis</th>
+    <th>Przeczytane?</th>
+    </thead>
+{% for library in librarys %}
+    <tr>
+        <td><a href="/librarys/{{ loop.index }}">{{ library.id }}</a></td>
+        <td>{{ library.title }}</td>
+        <td>{{ library.year }}</td>
+        <td>{{ library.description }}</td>
+        <td>{{ library.done }}</td>
+    </tr>
+{% endfor %}
+</table>
+<div>
+    <h2> Dodaj nowe zadanie: </h2>
+    <form method="POST" action="/librarys/{{ loop.index }}">
+        {{ form.hidden_tag() }}
+        <table>
+            {% for field in form if field.widget.input_type != 'hidden' %}
+                <tr>
+                    <th>{{ field.label }} {% if field.flags.required %}*{% endif %}</th>
+                    <td>{{ field }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <input type="submit" value="Go">
+    </form>
+</div>
+</body>
+</html>
+<head>
+    <title>Szczegóły librarys</title>
+</head>
+<body>
+    <h2> Zmień: </h2>
+    <form method="POST" action="/librarys/{{ library_id }}/">
+        {{ form.hidden_tag() }}
+        <table>
+            {% for field in form if field.widget.input_type != 'hidden' %}
+                <tr>
+                    <th>{{ field.label }} {% if field.flags.required %}*{% endif %}</th>
+                    <td>{{ field }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <input type="submit" value="Go">
+    </form>
+</body>
+</html>

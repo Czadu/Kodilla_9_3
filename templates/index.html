@@ -18,9 +18,9 @@
     <th>Opis</th>
     <th>Przeczytane?</th>
     </thead>
-{% for library in librarys %}
+{% for library in libraries %}
     <tr>
-        <td><a href="/librarys/{{ loop.index }}">{{ library.id }}</a></td>
+        <td><a href="/libraries/{{ library.index }}"></a></td>
         <td>{{ library.title }}</td>
         <td>{{ library.year }}</td>
         <td>{{ library.description }}</td>
@@ -30,7 +30,7 @@
 </table>
 <div>
     <h2> Dodaj nowe zadanie: </h2>
-    <form method="POST" action="/librarys/{{ loop.index }}">
+    <form method="POST" action="/libraries/">
         {{ form.hidden_tag() }}
         <table>
             {% for field in form if field.widget.input_type != 'hidden' %}
@@ -46,11 +46,11 @@
 </body>
 </html>
 <head>
-    <title>Szczegóły librarys</title>
+    <title>Szczegóły libraries</title>
 </head>
 <body>
     <h2> Zmień: </h2>
-    <form method="POST" action="/librarys/{{ library_id }}/">
+    <form method="POST" action="/libraries/{{ library_id }}/">
         {{ form.hidden_tag() }}
         <table>
             {% for field in form if field.widget.input_type != 'hidden' %}

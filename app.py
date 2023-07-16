@@ -1,76 +1,82 @@
-from flask import Flask, request, render_template, redirect, url_for, jsonify
-from forms import LibraryForm
-from models import libraries
+from flask import Flask, request, render_template, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+
+
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "nininini"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///C:/Users/Jrgrz/Desktop/Python/Kodilla_learning/Kodilla_13/Kodilla_13_4/LIBRARY fin/library.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+
+#Initialize the database
+db = SQLAlchemy(app)
+
+#Create db model
+class Library(db.Model):
+      id = db.Column(db.Integer, primary_key=True)
+      title = db.Column(db.String(200), nullable=False)
+      year = db.Column(db.String(4), nullable=False)
+      description = db.Column(db.String(500))
+      author = db.Column(db.String(200), nullable=False)
+      borrowed = db.Column(db.Boolean)
+      date_created = db.Column(db.DateTime, default=datetime.utcnow)
+
+      def __repr__(self):
+            return '<Title %r>' % self.id
+
 
 @app.route("/libraries/", methods=['GET', 'POST'])
-def library_list():
-        form = LibraryForm()
-        error = ""
-        if request.method == "POST":
-            if form.validate_on_submit():
-                libraries.create(form.data)
-                libraries.save_all()
-            return redirect(url_for("library_list"))
-        return render_template ("index.html", form=form, libraries=libraries.all(), error=error)
+def library_20():
+    if request.method == "POST":
+        new_title = request.form['title']
+        new_year = request.form['year']
+        new_description = request.form['description']
+        new_author = request.form['author']
+        new_borrowed = request.form.get("borrowed", False) == "True"
+        new_book = Library(title=new_title, year=new_year, description=new_description, author=new_author,
+                           borrowed=new_borrowed)
+        try:
+            db.session.add(new_book)
+            db.session.commit()
+            return redirect('/libraries/')
+        except:
+            return 'ERROR'
+    else:
+        libraries = Library.query.order_by(Library.date_created).all()
+        return render_template("library.html", libraries=libraries)
 
+@app.route("/update/<int:id>", methods=['GET', 'POST'])
+def update(id):
+    library_to_update = Library.query.get_or_404(id)
+    if request.method == "POST":
+        library_to_update.title = request.form['title']
+        library_to_update.year = request.form['year']
+        library_to_update.description = request.form['description']
+        library_to_update.author = request.form['author']
+        library_to_update.borrowed = request.form.get("borrowed", False) == "True"
+        try:
+            db.session.commit()
+            return redirect('/libraries/')
+        except:
+            return "ERROR"
+    else:
+        return render_template("update.html", library_to_update=library_to_update)
 
-@app.route("/libraries/<int:library_id>/", methods=["GET", "POST"])
-def library_details(library_id):
-        library = libraries.get(library_id)
-        form = LibraryForm(data=library)
+@app.route('/delete/<int:id>')
+def delete(id):
+    library_to_delete = Library.query.get_or_404(id)
 
-        if request.method == "POST":
-            if form.validate_on_submit():
-                libraries.update(library_id, form.data)
-                return redirect(url_for("library_details", library_id=library_id))
-        return render_template ("index.html", form=form, library_id=library_id)
-
-
-    ### REST ###
-
-
-@app.route("/api/v1/libraries/", methods=["GET"])
-def libraries_list_api_v1():
-        return jsonify(libraries.all())
-
-@app.route("/api/v1/libraries/<int:library_id>/", methods=["GET"])
-def library_details_api_v1(library_id):
-        library = libraries.get(library_id)
-        if library:
-            return jsonify(library)
-        else:
-            return jsonify(error="Library not found"), 404
-
-@app.route("/api/v1/libraries/", methods=["POST"])
-def create_library_api_v1():
-        data = request.json
-        libraries.create(data)
-        libraries.save_all()
-        return jsonify(success=True)
-
-@app.route("/api/v1/libraries/<int:library_id>/", methods=["PUT"])
-def update_library_api_v1(library_id):
-        library = libraries.get(library_id)
-        if library:
-            data = request.json
-            libraries.update(library_id, data)
-            return jsonify(success=True)
-        else:
-            return jsonify(error="Library not found"), 404
-
-@app.route("/api/v1/libraries/<int:library_id>/", methods=["DELETE"])
-def delete_library_api_v1(library_id):
-        library = libraries.get(library_id)
-        if library:
-            libraries.delete(library_id)
-            return jsonify(success=True)
-        else:
-            return jsonify(error="Library not found"), 404
-
+    try:
+        db.session.delete(library_to_delete)
+        db.session.commit()
+        return redirect('/libraries/')
+    except:
+        return "ERROR"
 
 
 if __name__ == "__main__":
+    with app.app_context():
+        # Create the database tables
+            db.create_all()
     app.run(debug=True)

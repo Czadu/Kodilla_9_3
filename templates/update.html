@@ -52,18 +52,18 @@
 
 
 </table>
-    <br/>
-    <form action="{{ url_for('update', id=library_to_update.id) }}" method="POST">
-        <input type="text" placeholder="Title" name="title" value="{{ library_to_update.title }}">
-        <input type="text" placeholder="Year" name="year" value="{{ library_to_update.year }}">
-        <input type="text" placeholder="Description" name="description" value="{{ library_to_update.description }}">
-        <input type="text" placeholder="Author" name="author" value="{{ library_to_update.author }}">        
-        <input type="checkbox" name="borrowed" value="True"> Borrowed
-        <input type="submit" value="Update book">
-    </form>
-    <br/>
-        </tbody>
-    </table>
+<br/>
+<form action="{{ url_for('update', id=book_to_update.id) }}" method="POST">
+    <input type="text" placeholder="Title" name="title" value="{{ book_to_update.title }}">
+    <input type="text" placeholder="Year" name="year" value="{{ book_to_update.year }}">
+    <input type="text" placeholder="Description" name="description" value="{{ book_to_update.description }}">
+    <input type="text" placeholder="Author" name="author" value="{{ book_to_update.author.name }}">        
+    <input type="checkbox" name="borrowed" value="True"> Borrowed
+    <input type="submit" value="Update book">
+</form>
+<br/>
+    </tbody>
+</table>
 </div>
 
 
